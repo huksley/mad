@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 const inter = Inter({ subsets: ["latin"] });
 
 const listenSSE = (callback: (event: MessageEvent<any>) => { cancel?: true } | undefined) => {
-  const eventSource = new EventSource("http://localhost:3000/api/mad", {
+  const eventSource = new EventSource("/api/mad", {
     withCredentials: true,
   });
   console.info("Listenting on SEE", eventSource);
