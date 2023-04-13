@@ -1,5 +1,6 @@
 import { Inter } from "next/font/google";
 import { useEffect, useRef, useState } from "react";
+import { useClientOnce } from "wizecore-hooks";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,18 +23,6 @@ const listenSSE = (callback: (event: MessageEvent<any>) => { cancel?: true } | u
       eventSource.close();
     },
   };
-};
-
-type Destructor = () => void;
-
-const useClientOnce = (callback: () => Destructor | void) => {
-  const isCalled = useRef(false);
-  useEffect(() => {
-    if (typeof window !== "undefined" && !isCalled.current) {
-      isCalled.current = true;
-      return callback();
-    }
-  }, []);
 };
 
 const downloadJsonFile = (data: any, filename?: string) => {
