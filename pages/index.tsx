@@ -24,9 +24,9 @@ const listenSSE = (callback: (event: MessageEvent<any>) => { cancel?: true } | u
   };
 };
 
-type Destructor = () => void
+type Destructor = () => void;
 
-const useClientOnce = (callback: () => (Destructor | void)) => {
+const useClientOnce = (callback: () => Destructor | void) => {
   const isCalled = useRef(false);
   useEffect(() => {
     if (typeof window !== "undefined" && !isCalled.current) {
@@ -34,7 +34,19 @@ const useClientOnce = (callback: () => (Destructor | void)) => {
       return callback();
     }
   }, []);
-}
+};
+
+const downloadJsonFile = (data: any, filename?: string) => {
+  // Creating a blob object from non-blob data using the Blob constructor
+  const blob = new Blob([JSON.stringify(data)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  // Create a new anchor element
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename || "download.json";
+  a.click();
+  a.remove();
+};
 
 export default function Home() {
   const [events, setEvents] = useState<string[]>([]);
@@ -43,17 +55,17 @@ export default function Home() {
 
   useClientOnce(() => {
     let r: { close: () => void } | undefined = undefined;
-      r = listenSSE((event) => {
-        const str = event.data as string;
-        if (str.startsWith("{") && str.endsWith("}")) {
-          const obj = JSON.parse(str);
-          setData(obj);
-          return { cancel: true };
-        } else {
-          setEvents((events) => [...events, event.data]);
-          return undefined;
-        }
-      });
+    r = listenSSE((event) => {
+      const str = event.data as string;
+      if (str.startsWith("{") && str.endsWith("}")) {
+        const obj = JSON.parse(str);
+        setData(obj);
+        return { cancel: true };
+      } else {
+        setEvents((events) => [...events, event.data]);
+        return undefined;
+      }
+    });
   });
 
   return (
@@ -63,6 +75,15 @@ export default function Home() {
         {events.map((event, index) => (
           <div key={index}>{event}</div>
         ))}
+      </div>
+
+      <div className={data ? "block my-4" : "invisible my-4"}>
+        <button
+          className="px-3 py-2 bg-blue-500 text-white rounded-md"
+          onClick={() => downloadJsonFile(data?.companies, "data.json")}
+        >
+          Download
+        </button>
       </div>
 
       <table className="mx-4 w-[80%]">
@@ -88,13 +109,14 @@ export default function Home() {
                   <div className="w-60 flex-shrink-0 mr-2 sm:mr-3">
                     <img className="contain" src={company["Processed Logo URL"]} alt="Alex Shatov" />
                   </div>
-                  <div className="font-medium text-gray-800 text-lg"><a href={company["URL"]}>{company["Company Name"]}</a></div>
+                  <div className="font-medium text-gray-800 text-lg">
+                    <a href={company["URL"]}>{company["Company Name"]}</a>
+                  </div>
                 </div>
               </td>
               <td className="p-3">
                 <div className="text-left font-medium">
-                  {company["Category"]} &raquo;{" "}
-                  {company["Sub Category"]}
+                  {company["Category"]} &raquo; {company["Sub Category"]}
                 </div>
               </td>
               <td className="p-3">
