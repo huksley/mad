@@ -95,7 +95,7 @@ export default function Home() {
 
         <tbody className="text-sm divide-y divide-gray-100">
           {data?.companies
-            .sort((a, b) => {
+            .sort((a: any, b: any) => {
               if (a["Company Name"] < b["Company Name"]) return -1;
               if (a["Company Name"] > b["Company Name"]) return 1;
               return 0;
