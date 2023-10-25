@@ -59,7 +59,7 @@ export default function Home() {
 
   return (
     <main className="m-4 flex flex-col gap-2 justify-center items-center w-[100vw]">
-      <h1 className="my-4 text-lg font-medium">Parse MAD</h1>
+      <h1 className="my-4 text-xl font-medium">The 2023 MAD (ML/AI/Data) Landscape</h1>
       <div ref={ref} className="my-4">
         {events.map((event, index) => (
           <div key={index}>{event}</div>
@@ -71,15 +71,18 @@ export default function Home() {
           className="px-3 py-2 bg-blue-500 text-white rounded-md"
           onClick={() => downloadJsonFile(data?.companies, "data.json")}
         >
-          Download
+          Download JSON
         </button>
       </div>
 
-      <table className="mx-4 w-[80%]">
+      <table className="mx-4 w-[95%]">
         <thead className="text-xs font-semibold uppercase text-gray-400 bg-gray-50">
           <tr>
-            <th className="p-3">
+            <th className="p-3" colSpan={2}>
               <div className="font-semibold text-left">Company</div>
+            </th>
+            <th className="p-3">
+              <div className="font-semibold text-left">Country</div>
             </th>
             <th className="p-3">
               <div className="font-semibold text-left">Category</div>
@@ -91,28 +94,33 @@ export default function Home() {
         </thead>
 
         <tbody className="text-sm divide-y divide-gray-100">
-          {data?.companies.map((company: any, index: number) => (
-            <tr key={index}>
-              <td className="p-3">
-                <div className="flex items-center">
-                  <div className="w-60 flex-shrink-0 mr-2 sm:mr-3">
-                    <img className="contain" src={company["Processed Logo URL"]} alt="Alex Shatov" />
+          {data?.companies
+            .sort((a, b) => {
+              if (a["Company Name"] < b["Company Name"]) return -1;
+              if (a["Company Name"] > b["Company Name"]) return 1;
+              return 0;
+            })
+            .map((company: any, index: number) => (
+              <tr key={index} className="border-b">
+                <td className="p-3">
+                  <img className="contain max-w-[90px]" src={company["Processed Logo URL"]} alt={company["Company Name"]} />
+                </td>
+                <td className="p-3">
+                  <a href={company["URL"]}>{company["Company Name"]}</a>
+                </td>
+                <td className="p-3">
+                  <div className="text-left font-medium">{company["Country"]}</div>
+                </td>
+                <td className="p-3">
+                  <div className="text-left font-medium">
+                    {company["Category"]} &raquo; {company["Sub Category"]}
                   </div>
-                  <div className="font-medium text-gray-800 text-lg">
-                    <a href={company["URL"]}>{company["Company Name"]}</a>
-                  </div>
-                </div>
-              </td>
-              <td className="p-3">
-                <div className="text-left font-medium">
-                  {company["Category"]} &raquo; {company["Sub Category"]}
-                </div>
-              </td>
-              <td className="p-3">
-                <div className="text-left font-medium max-w-60">{company["Description"]}</div>
-              </td>
-            </tr>
-          ))}
+                </td>
+                <td className="p-3">
+                  <div className="text-left font-medium max-w-60">{company["Description"]}</div>
+                </td>
+              </tr>
+            ))}
         </tbody>
       </table>
     </main>
